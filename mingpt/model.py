@@ -92,10 +92,16 @@ class Block(nn.Module):
             nn.Linear(4 * config.n_embd, config.n_embd),
             nn.Dropout(config.resid_pdrop),
         )
+        self.outputs = {}
 
     def forward(self, x):
-        x = x + self.attn(self.ln1(x))
-        x = x + self.mlp(self.ln2(x))
+        attention = self.attn(self.ln1(x))
+        x = x + attention
+        mlp = self.mlp(self.ln2(x))
+        x = x + mlp
+
+        self.outputs['attention'] = attention
+        self.outputs['mlp'] = mlp
         return x
 
 class GPT(nn.Module):
